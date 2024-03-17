@@ -10,7 +10,7 @@ fn ends_with(word: &str, suffix: &str) -> bool {
     word.ends_with(suffix)
 }
 
-fn change_filename(name: &str, output_name: Option<&str>) -> String {
+pub fn change_filename(name: &str, output_name: Option<String>) -> String {
     if let Some(output_name) = output_name {
         return output_name.to_string();
     } else if ends_with(&name, ".by") {
@@ -53,7 +53,7 @@ pub fn parse_file(
     filpath: &str,
     add_true_line: bool,
     file_name_prefix: &str,
-    output_name: Option<&str>,
+    output_name: Option<String>,
     change_imports: Option<HashMap<String, String>>,
 ) -> Result<(), String> {
     let mut results: Vec<String> = vec![];
