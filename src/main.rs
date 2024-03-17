@@ -90,6 +90,7 @@ fn main() {
     } else {
         import_translations = None;
     }
+    for file in 0..parse_que.len() {}
 }
 
 pub fn get_filename(file: &str) -> String {
