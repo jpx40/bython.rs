@@ -1,1 +1,1 @@
-rewrite of https://github.com/mathialo/bython in Rust
+rewrite of [bython](https://github.com/mathialo/bython) in Rust
