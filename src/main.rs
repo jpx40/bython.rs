@@ -2,7 +2,7 @@ mod parser;
 use clap::Parser;
 use log::log_enabled;
 use std::{collections::HashMap, process};
-use std::{fs::File, path::Path};
+use std::{fs, fs::File, path::Path};
 
 #[derive(Parser, Debug, Clone)]
 #[command(version, about, long_about = None)]
@@ -35,6 +35,7 @@ fn main() {
     let mut current_file_name = String::new();
     let mut outputname: Option<String>;
     let mut output_file = String::new();
+    let python_command = "python3";
 
     if let Some(x) = &args.output {
         if let Some(y) = args.compile {
@@ -104,14 +105,37 @@ fn main() {
     } else {
         import_translations = None;
     }
-    let _ = Parsing::new(
+    match Parsing::new(
         args.clone(),
-        parse_que,
+        parse_que.clone(),
         current_file_name,
-        path_prefix,
+        path_prefix.clone(),
         import_translations,
     )
-    .parse();
+    .parse()
+    {
+        Ok(_) => log::info!("success"),
+        Err(_) => {
+            log::info!("failed");
+            for file in 0..parse_que.len() {
+                let _ = fs::remove_file(
+                    path_prefix.clone() + parser::change_filename(&parse_que[file], None).as_str(),
+                );
+            }
+        }
+    }
+    match args.input {
+        Some(x) => {
+            let filename = Path::new(&x[0])
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .to_string();
+        }
+        None => {
+            println!("no input")
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
