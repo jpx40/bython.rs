@@ -13,7 +13,7 @@ fn ends_with(word: &str, suffix: &str) -> bool {
 fn change_filename(name: &str, output_name: Option<&str>) -> String {
     if let Some(output_name) = output_name {
         return output_name.to_string();
-    } else if ends_with(name, ".by") {
+    } else if ends_with(&name, ".by") {
         return name.to_string().replace(".by", ".py");
     } else {
         return name.to_string() + ".py";
@@ -54,7 +54,7 @@ fn parse_file(
     add_true_line: bool,
     file_name_prefix: &str,
     output_name: Option<&str>,
-    change_imports: Option<Vec<String>>,
+    change_imports: Option<HashMap<String, String>>,
 ) {
     let mut results: Vec<String> = vec![];
     let mut infile_str = String::new();
@@ -130,29 +130,41 @@ fn parse_file(
         if line.contains("}") {
             indentation_level -= 1;
         }
+        for _i in 0..usize::try_from(indentation_level).unwrap() {
+            line = indentation_sign.to_string() + &line;
+        }
         if line.contains("{") {
             indentation_level += 1;
         }
         line = line.replace("{", ":");
         line = line.replace("}", "");
-        line = Regex::new(r#"\n:", ":"#)
-            .unwrap()
-            .find(&line)
-            .unwrap()
-            .as_str()
-            .to_string();
+        line = line.replace("\n:", ":");
+        // line = Regex::new(r#"\n:", ":"#)
+        //     .unwrap()
+        //     .find(&line)
+        //     .unwrap()
+        //     .as_str()
+        //     .to_string();
         infile_str_indented += &indentation_sign
             .repeat(usize::try_from(indentation_level).unwrap())
             .to_string();
-        infile_str_indented += &add_comment.trim_start();
+        infile_str_indented += add_comment.trim_start();
         infile_str_indented += "\n";
+
+        infile_str_indented += &line.replace("else if", "elif").to_string();
+        infile_str_indented += &line.replace(";\n", "\n").to_string();
         if let Some(imports) = change_imports.clone() {
-            for module in imports.iter() {
-                let tmp = Regex::new(r##"(import\\s {module})"##)
+            for (_k, module) in imports.iter() {
+                let _tmp = Regex::new(format!(r#"(import\s)[\w.]+("{module}")"#).as_str())
                     .unwrap()
                     .captures(module)
                     .unwrap();
+                infile_str_indented = infile_str_indented.replace(
+                    format!("import {module}").as_str(),
+                    format!("{} as {}", module.as_str(), imports[module]).as_str(),
+                );
             }
         }
     }
+    outfile.write_all(infile_str_indented.as_bytes()).unwrap();
 }
