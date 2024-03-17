@@ -1,11 +1,13 @@
 mod parser;
+use std::process;
+
 use clap::Parser;
 
 #[derive(Parser, Debug, Clone)]
 #[command(version, about, long_about = None)]
 struct Args {
     #[arg(short, long)]
-    compile: Option<String>,
+    compile: Option<bool>,
     #[arg(short, long)]
     keep: Option<String>,
     #[arg(short, long)]
@@ -25,6 +27,15 @@ fn main() {
     let mut include = String::new();
     let mut include_prefix = String::new();
     let mut parse_que: Vec<String> = Vec::new();
+
+    if let Some(x) = &args.output {
+        if let Some(y) = args.compile {
+            if y {
+                //exit
+                process::exit(0);
+            }
+        }
+    }
 
     match &args.compile {
         Some(x) => {
@@ -53,6 +64,7 @@ fn main() {
             }
         }
     }
-
-    for _i in usize::try_from(parse_que.len()) {}
+    let i: usize = 0;
+    while i < parse_que.len() {}
+    {}
 }
