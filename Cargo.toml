@@ -8,4 +8,7 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.5.3", features = ["derive"] }
 config = "0.14.0"
+crossbeam = "0.8.4"
+rayon = "1.9.0"
 regex = "1.10.3"
+smol = "2.0.0"
