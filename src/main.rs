@@ -11,7 +11,7 @@ struct Args {
     #[arg(short, long)]
     keep: Option<String>,
     #[arg(short, long)]
-    output: Option<String>,
+    output: Option<Vec<String>>,
     #[arg(short, long)]
     lower_true: Option<String>,
     #[arg(long)]
@@ -27,10 +27,13 @@ fn main() {
     let mut include = String::new();
     let mut include_prefix = String::new();
     let mut include_suffix = String::new();
-    let mut import_files = Vec::new();
+    let mut import_files: Vec<Vec<String>> = Vec::new();
     let mut parse_que: Vec<String> = Vec::new();
     let mut import_translations: Option<HashMap<String, String>> = None;
     let mut translation: HashMap<String, String> = HashMap::new();
+    let mut current_file_name = String::new();
+    let mut outputname: Option<String>;
+    let mut output_file = String::new();
 
     if let Some(x) = &args.output {
         if let Some(y) = args.compile {
@@ -90,7 +93,46 @@ fn main() {
     } else {
         import_translations = None;
     }
-    for file in 0..parse_que.len() {}
+}
+
+pub struct Parsing {
+    args: Args,
+    output_file: Option<String>,
+    parse_que: Vec<String>,
+    outputname: Option<String>,
+    current_file_name: String,
+}
+impl Parsing {
+    pub fn new(args: Args, parse_que: Vec<String>, current_file_name: String) -> Self {
+        Parsing {
+            args: args,
+            output_file: None,
+            parse_que: parse_que,
+            outputname: None,
+            current_file_name: current_file_name,
+        }
+    }
+    pub fn parse(self) -> Result<Parsing, String> {
+        let mut parse_que = self.parse_que;
+        let mut outputname = self.outputname;
+        let mut args = self.args;
+        let mut current_file_name = self.current_file_name;
+
+        for file in 0..parse_que.len() {
+            current_file_name = parse_que[file].clone();
+            match &args.output {
+                None => outputname = None,
+                Some(x) => outputname = Some(x[0].to_string()),
+            }
+        }
+        Ok(Parsing {
+            outputname: outputname,
+            parse_que: parse_que,
+            args: args,
+            output_file: None,
+            current_file_name: current_file_name,
+        })
+    }
 }
 
 pub fn get_filename(file: &str) -> String {
