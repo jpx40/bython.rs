@@ -20,7 +20,7 @@ fn change_filename(name: &str, output_name: Option<&str>) -> String {
     }
 }
 
-fn parse_imports(file_name: &str) -> Vec<String> {
+pub fn parse_imports(file_name: &str) -> Result<Vec<String>, String> {
     let mut results: Vec<String> = vec![];
     let re1 = Regex::new(r#"(import\s)[\w.]+(;|\s|$)"#).unwrap();
     let re2 = Regex::new(r#"(from\s)[\w.]+(import\s)[\w.]+(;|\s|$)"#).unwrap();
@@ -46,16 +46,16 @@ fn parse_imports(file_name: &str) -> Vec<String> {
     // for import in import_with_suffix.iter() {
     //     let mut words = import.split_whitespace();
     // }
-    import_with_suffix
+    Ok(import_with_suffix)
 }
 
-fn parse_file(
+pub fn parse_file(
     filpath: &str,
     add_true_line: bool,
     file_name_prefix: &str,
     output_name: Option<&str>,
     change_imports: Option<HashMap<String, String>>,
-) {
+) -> Result<(), String> {
     let mut results: Vec<String> = vec![];
     let mut infile_str = String::new();
     let mut infile_str_indented = String::new();
@@ -167,4 +167,5 @@ fn parse_file(
         }
     }
     outfile.write_all(infile_str_indented.as_bytes()).unwrap();
+    Ok(())
 }

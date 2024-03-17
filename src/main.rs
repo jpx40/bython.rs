@@ -1,5 +1,5 @@
 mod parser;
-use std::process;
+use std::{collections::HashMap, process};
 
 use clap::Parser;
 
@@ -26,7 +26,11 @@ fn main() {
     let mut path_suffix = String::new();
     let mut include = String::new();
     let mut include_prefix = String::new();
+    let mut include_suffix = String::new();
+    let mut import_files = Vec::new();
     let mut parse_que: Vec<String> = Vec::new();
+    let mut import_translations: Option<HashMap<String, String>> = None;
+    let mut translation: HashMap<String, String> = HashMap::new();
 
     if let Some(x) = &args.output {
         if let Some(y) = args.compile {
@@ -64,7 +68,34 @@ fn main() {
             }
         }
     }
-    let i: usize = 0;
-    while i < parse_que.len() {}
-    {}
+    for i in 0..parse_que.len() {
+        match parser::parse_imports(&parse_que[i]) {
+            Ok(x) => import_files.push(x),
+            Err(_) => panic!("failed to parse file"),
+        }
+    }
+    if path_prefix != "".to_string() {
+        for file in 0..parse_que.len() {
+            let file_val: String = path_prefix.to_string() + &get_filename(&parse_que[file]);
+
+            match import_translations {
+                Some(x) => translation = x.clone(),
+                None => {
+                    let nothing = "Nothing".to_string();
+                }
+            }
+            translation.insert(file_val, parse_que[file].clone());
+            import_translations = Some(translation.clone());
+        }
+    } else {
+        import_translations = None;
+    }
+}
+
+pub fn get_filename(file: &str) -> String {
+    // let mut tmp: Vec<u8> = file.as_bytes().to_vec();
+
+    // let output = String::from_utf8().unwrap();
+    let output = file.split(".").collect::<Vec<&str>>()[0].to_string();
+    output
 }
